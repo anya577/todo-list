@@ -1,4 +1,5 @@
-import { Component, model, signal, ViewEncapsulation } from '@angular/core';
+import { Component, signal, ViewEncapsulation } from '@angular/core';
+import { NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 
@@ -9,6 +10,7 @@ interface Task {
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
@@ -16,22 +18,18 @@ interface Task {
 })
 export class AppComponent {
   tasks = signal<Task[]>([]);
-  taskText = model('');
+  taskText = signal('');
+  nextId = 1;
 
+  addTask() {
+    const text = this.taskText().trim();
+    if (!text) return; 
 
-  addTask() { 
-    this.tasks.update(tasks => [
-      ...tasks,
-      { id: tasks.length ? tasks[tasks.length - 1].id + 1 : 1, text:this.taskText() }
-    ]);
-    this.taskText.set('');
+    this.tasks.update(tasks => [...tasks, { id: this.nextId, text }]); 
+    this.taskText.set(' ');
   }
-    
- 
-  removeTask(index: number) { 
-    this.tasks.update(tasks => { 
-      tasks.splice(index, 1)
-      return tasks
-    })
+
+  removeTask(index: number) {
+    this.tasks.update(tasks => tasks.filter((_, i) => i !== index));
   }
 }
